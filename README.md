@@ -45,7 +45,6 @@ BIN Checker - это Android-приложение, которое позволя
 Приложение построено с использованием Clean Architecture и MVVM паттерна:
 
 ```
-BIN/
 ├── app/                    # Основной модуль приложения
 │   ├── src/main/
 │   │   ├── java/com/binchecker/
