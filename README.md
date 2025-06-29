@@ -67,9 +67,7 @@ BIN Checker - это Android-приложение, которое позволя
 ├── video/                  # Демонстрационные видео
 ├── screenshots/            # Скриншоты приложения
 ├── README.md               # Основная документация
-├── BIN_Checker_App_Documentation.md # Подробная техническая документация
-├── doc.md                  # Краткое описание
-└── testzd.md               # Тестовое задание
+└── BIN_Checker_App_Documentation.md # Подробная техническая документация
 ```
 
 ## Технологии
@@ -211,7 +209,6 @@ data class Bank(
 
 - [Подробная техническая документация](BIN_Checker_App_Documentation.md)
 - [Тестовые документы](test-docs/)
-- [Тестовое задание](testzd.md)
 
 ## Статус проекта
 
