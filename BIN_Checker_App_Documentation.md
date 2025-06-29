@@ -370,4 +370,158 @@ data class Bank(
 ## Заключение
 
 BIN Checker App - это тестовое задание, которое демонстрирует навыки разработки Android-приложений. В проекте реализованы все основные требования и несколько дополнительных функций.
-Проект готов к демонстрации и может служить основой для дальнейшего развития. 
+Проект готов к демонстрации и может служить основой для дальнейшего развития.
+
+## Логика работы приложения
+
+### Диаграмма последовательности проверки BIN
+
+```mermaid
+sequenceDiagram
+    participant User as Пользователь
+    participant UI as UI (Compose)
+    participant VM as ViewModel
+    participant UC as UseCase
+    participant API as Binlist API
+    participant DB as Room DB
+    
+    User->>UI: Вводит BIN номер
+    UI->>VM: onBinChanged(bin)
+    VM->>VM: Валидация BIN
+    VM->>UI: Обновление состояния кнопки
+    
+    User->>UI: Нажимает "Проверить"
+    UI->>VM: checkBin(bin)
+    VM->>UC: execute(bin)
+    UC->>API: GET /{bin}
+    
+    alt Успешный ответ
+        API->>UC: BinInfo данные
+        UC->>DB: Сохранение в историю
+        UC->>VM: Результат
+        VM->>UI: Отображение данных карты
+    else Ошибка API
+        API->>UC: HTTP Error
+        UC->>VM: Ошибка
+        VM->>UI: Сообщение об ошибке
+    end
+```
+
+### Диаграмма состояний экрана проверки
+
+```mermaid
+stateDiagram-v2
+    [*] --> Idle: Приложение запущено
+    Idle --> Validating: Ввод BIN
+    Validating --> Valid: Валидный BIN
+    Validating --> Invalid: Невалидный BIN
+    Valid --> Loading: Нажата кнопка "Проверить"
+    Loading --> Success: API ответ успешен
+    Loading --> Error: API ошибка
+    Success --> Valid: Новый запрос
+    Error --> Valid: Повторный запрос
+    Invalid --> Validating: Изменение ввода
+```
+
+### Диаграмма архитектуры данных
+
+```mermaid
+graph TB
+    subgraph "Presentation Layer"
+        UI[UI Components]
+        VM[ViewModels]
+    end
+    
+    subgraph "Domain Layer"
+        UC[Use Cases]
+        REPO[Repository Interfaces]
+        MODELS[Domain Models]
+    end
+    
+    subgraph "Data Layer"
+        API[API Services]
+        DB[(Room Database)]
+        REPO_IMPL[Repository Impl]
+    end
+    
+    UI --> VM
+    VM --> UC
+    UC --> REPO
+    REPO --> REPO_IMPL
+    REPO_IMPL --> API
+    REPO_IMPL --> DB
+    UC --> MODELS
+```
+
+### Диаграмма навигации
+
+```mermaid
+graph LR
+    subgraph "MainActivity"
+        NAV[Navigation]
+    end
+    
+    subgraph "Screens"
+        BIN[BinInputScreen]
+        HIST[HistoryScreen]
+    end
+    
+    NAV --> BIN
+    NAV --> HIST
+    BIN --> HIST
+    HIST --> BIN
+```
+
+### Диаграмма обработки ошибок
+
+```mermaid
+flowchart TD
+    A[Запрос к API] --> B{Статус ответа}
+    B -->|200| C[Успех]
+    B -->|400| D[Неверный BIN]
+    B -->|404| E[BIN не найден]
+    B -->|429| F[Лимит превышен]
+    B -->|500+| G[Серверная ошибка]
+    B -->|Network| H[Сетевая ошибка]
+    
+    C --> I[Сохранение в БД]
+    D --> J[Показать ошибку валидации]
+    E --> K[Показать "BIN не найден"]
+    F --> L[Показать "Лимит превышен"]
+    G --> M[Показать "Сервис недоступен"]
+    H --> N[Показать "Проверьте интернет"]
+    
+    I --> O[Обновить UI]
+    J --> P[Блокировать кнопку]
+    K --> Q[Разблокировать кнопку]
+    L --> Q
+    M --> Q
+    N --> Q
+```
+
+### Диаграмма жизненного цикла ViewModel
+
+```mermaid
+graph TD
+    A[ViewModel создан] --> B[Инициализация]
+    B --> C[Подписка на Flow]
+    C --> D[Ожидание действий пользователя]
+    D --> E{Действие пользователя}
+    E -->|Ввод BIN| F[Валидация]
+    E -->|Нажатие кнопки| G[API запрос]
+    E -->|Навигация| H[Очистка ресурсов]
+    
+    F --> I[Обновление UI состояния]
+    G --> J[Показать загрузку]
+    J --> K[Выполнить запрос]
+    K --> L{Результат}
+    L -->|Успех| M[Обновить данные]
+    L -->|Ошибка| N[Показать ошибку]
+    
+    M --> D
+    N --> D
+    I --> D
+    H --> O[ViewModel уничтожен]
+```
+
+## Бизнес-логика 
