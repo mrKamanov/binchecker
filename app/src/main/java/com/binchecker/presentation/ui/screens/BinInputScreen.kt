@@ -133,6 +133,7 @@ fun BinInputScreen(
                     binInput = uiState.binInput,
                     isLoading = uiState.isLoading,
                     validationError = uiState.validationError,
+                    isButtonEnabled = uiState.isButtonEnabled,
                     onBinInputChanged = viewModel::onBinInputChanged,
                     onCheckBin = viewModel::checkBin
                 )
@@ -215,6 +216,7 @@ private fun InputSection(
     binInput: String,
     isLoading: Boolean,
     validationError: String?,
+    isButtonEnabled: Boolean,
     onBinInputChanged: (String) -> Unit,
     onCheckBin: () -> Unit
 ) {
@@ -284,7 +286,7 @@ private fun InputSection(
         
         Button(
             onClick = onCheckBin,
-            enabled = !isLoading,
+            enabled = isButtonEnabled && !isLoading,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(6.dp),
             colors = ButtonDefaults.buttonColors(
