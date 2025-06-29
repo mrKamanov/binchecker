@@ -136,6 +136,9 @@ class BinRepositoryImpl @Inject constructor(
         } catch (e: HttpException) {
             println("DEBUG: HTTP Exception for $bin: ${e.code()} - ${e.message}")
             when (e.code()) {
+                400 -> {
+                    Result.failure(Exception("BIN номер не найден в базе данных"))
+                }
                 429 -> {
                     // Rate limit exceeded - проверяем кэш
                     val cachedBin = dao.getBinByNumber(bin)
